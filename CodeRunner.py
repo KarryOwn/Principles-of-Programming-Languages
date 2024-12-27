@@ -1,47 +1,39 @@
-import math
+import pandas as pd
 from ASTUtils import *
 
 class CodeRunner:
-    def visitProg(self, ctx: Prog):
-        return ctx.expr.accept(self)
+    def visitProgram(self, ctx: Program):
+        results = []
+        for statement in ctx.statements:
+            result = statement.accept(self)
+            results.append(result)
+        return results
 
-    def visitBinOp(self, ctx: BinOp):
-        left = ctx.left.accept(self)
-        right = ctx.right.accept(self)
+    def visitSelect(self, ctx: Select):
+        data = self.load_data(ctx.table)
+        condition_func = self.create_condition_func(ctx.condition)
+        result = data[data.apply(condition_func, axis=1)][ctx.columns]
+        return result.to_dict(orient='records')
 
-        if ctx.op == "+":
-            return left + right
-        elif ctx.op == "-":
-            return left - right
-        elif ctx.op == "*":
-            return left * right
-        elif ctx.op == "/":
-            if right == 0:
-                raise ZeroDivisionError("Division by zero.")
-            return left / right
-        
+    def visitUpdate(self, ctx: Update):
+        data = self.load_data(ctx.table)
+        condition_func = self.create_condition_func(ctx.condition)
+        assignment_func = self.create_assignment_func(ctx.assignment)
+        data.loc[data.apply(condition_func, axis=1), ctx.assignment.column] = data.apply(assignment_func, axis=1)
+        self.save_data(ctx.table, data)
+        return "Update successful"
 
-    def visitInt(self, ctx: Int):
-        return ctx.value
+    def create_condition_func(self, condition):
+        comparator = condition.comparator
+        if comparator == '=':
+            comparator = '=='
+        return eval(f"lambda row: row['{condition.column}'] {comparator} {condition.value.value}")
 
-    def visitVar(self, ctx: Var):
-        raise NotImplementedError("Variables are not supported yet.")
+    def create_assignment_func(self, assignment):
+        return eval(f"lambda row: {assignment.value.value}")
 
-    def visitParens(self, ctx: Parens):
-        return ctx.expr.accept(self)
+    def load_data(self, table):
+        return pd.read_excel(f"{table}.xlsx")
 
-    def visitFuncCall(self, ctx: FuncCall):
-        func_name = ctx.func_name
-        args = [arg.accept(self) for arg in ctx.args]
-
-        if func_name == "sin":
-            return math.sin(args[0])
-        elif func_name == "cos":
-            return math.cos(args[0])
-        elif func_name == "max":
-            return max(args)
-        elif func_name == "min":
-            return min(args)
-        else:
-            raise NotImplementedError(f"Function '{func_name}' is not supported.")
-
+    def save_data(self, table, data):
+        data.to_excel(f"{table}.xlsx", index=False)

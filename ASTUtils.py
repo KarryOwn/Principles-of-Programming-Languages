@@ -10,14 +10,11 @@ class AST(ABC):
 
 # Program Node
 @dataclass
-class Prog(AST):
-    expr: AST
-
-    def __str__(self):
-        return f"Prog({self.expr})"
+class Program(AST):
+    statements: List[AST]
 
     def accept(self, v):
-        return v.visitProg(self)
+        return v.visitProgram(self)
 
 # Binary Operation Node
 @dataclass
@@ -76,3 +73,61 @@ class FuncCall(AST):
 
     def accept(self, v):
         return v.visitFuncCall(self)
+
+# Select Query Node
+@dataclass
+class Select(AST):
+    columns: List[str]
+    table: str
+    condition: AST
+
+    def __str__(self):
+        return f"Select({self.columns}, {self.table}, {self.condition})"
+
+    def accept(self, v):
+        return v.visitSelect(self)
+
+# Update Query Node
+@dataclass
+class Update(AST):
+    table: str
+    assignment: AST
+    condition: AST
+
+    def __str__(self):
+        return f"Update({self.table}, {self.assignment}, {self.condition})"
+
+    def accept(self, v):
+        return v.visitUpdate(self)
+
+# Assignment Node
+@dataclass
+class Assignment(AST):
+    column: str
+    value: AST
+
+    def __str__(self):
+        return f"Assignment({self.column}, {self.value})"
+
+    def accept(self, v):
+        return v.visitAssignment(self)
+
+# Condition Node
+@dataclass
+class Condition(AST):
+    column: str
+    comparator: str
+    value: AST
+
+    def __str__(self):
+        return f"Condition({self.column}, {self.comparator}, {self.value})"
+
+    def accept(self, v):
+        return v.visitCondition(self)
+
+@dataclass
+class Value(AST):
+    value: str
+
+    def accept(self, v):
+        return v.visitValue(self)

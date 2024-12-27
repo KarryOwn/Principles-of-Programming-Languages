@@ -2,10 +2,12 @@ import sys, os
 import subprocess
 import unittest
 from antlr4 import *
+import tkinter as tk
+from ui import QueryApp
 
 # Define your variables
 DIR = os.path.dirname(__file__)
-ANTLR_JAR = 'C:/antlr/antlr4-4.9.2-complete.jar' # your location is going here
+ANTLR_JAR = 'C:/antlr/antlr-4.13.2-complete.jar' # your location is going here
 CPL_Dest = 'CompiledFiles'
 SRC = 'Sample.g4'
 TESTS = os.path.join(DIR, './tests')
@@ -13,6 +15,7 @@ TESTS = os.path.join(DIR, './tests')
 def printUsage():
     print('python run.py gen')
     print('python run.py test')
+    print('python run.py ui')
 
 def printBreak():
     print('-----------------------------------------------')
@@ -29,7 +32,6 @@ def runCode(astTree):
     
     print("Result:", result)
 
-
 def runTest():
     print('Running testcases...')
        
@@ -42,7 +44,7 @@ def runTest():
             print(f"Input rejected: {msg}")
             exit(1)  # Exit the program with an error
 
-    filename = 'testcase.txt'
+    filename = 'testcase.xlsx'
     inputFile = os.path.join(DIR, './tests', filename)    
     
     # Reset the input stream for parsing and catch the error
@@ -77,7 +79,11 @@ def runTest():
     print('This is ast string: ', asttree)
     
     runCode(asttree)
-    
+
+def runUI():
+    root = tk.Tk()
+    app = QueryApp(root)
+    root.mainloop()
 
 def main(argv):
     print('Complete jar file ANTLR  :  ' + str(ANTLR_JAR))
@@ -90,12 +96,10 @@ def main(argv):
         generateAntlr2Python()    
     elif argv[0] == 'test':       
         runTest()
+    elif argv[0] == 'ui':
+        runUI()
     else:
         printUsage()
 
-
 if __name__ == '__main__':
-    main(sys.argv[1:])     
-    
-    
-    
+    main(sys.argv[1:])

@@ -1,21 +1,22 @@
 grammar Sample;
 
-program: expression;
+program: statement+;
 
-expression: expression (Add | Sub) term | term;
+statement: selectStmt
+         | updateStmt
+         | 'read' 'from' STRING 'as' ID ';'
+         | 'display' ID ';';
 
-term: term (Mul | Div) factor | factor;
+selectStmt: 'SELECT' columns 'FROM' ID 'WHERE' condition ';';
+updateStmt: 'UPDATE' ID 'SET' assignment 'WHERE' condition ';';
 
-factor: funcCall | '(' expression ')'| Integer;
+columns: ID (',' ID)*;
+assignment: ID '=' value;
+condition: ID comparator value;
+value: STRING | INTEGER;
+comparator: '=' | '>' | '<' | '>=' | '<=';
 
-funcCall: Id '(' (expression (',' expression)*)? ')';  // Function calls
-
-Add: '+';
-Sub: '-';
-Mul: '*';
-Div: '/';
-
-Id: [a-zA-Z_][a-zA-Z_0-9]*;  
-Integer: [0-9]+;            
-
-WS: [ \t\r\n]+ -> skip;     
+STRING: '"' .*? '"';
+ID: [a-zA-Z_][a-zA-Z_0-9]*;
+INTEGER: [0-9]+;
+WS: [ \t\r\n]+ -> skip;

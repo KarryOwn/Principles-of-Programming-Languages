@@ -1,6 +1,6 @@
-# Generated from Sample.g4 by ANTLR 4.9.2
+# Generated from Sample.g4 by ANTLR 4.13.2
 from antlr4 import *
-if __name__ is not None and "." in __name__:
+if "." in __name__:
     from .SampleParser import SampleParser
 else:
     from SampleParser import SampleParser
@@ -14,23 +14,43 @@ class SampleVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by SampleParser#expression.
-    def visitExpression(self, ctx:SampleParser.ExpressionContext):
+    # Visit a parse tree produced by SampleParser#statement.
+    def visitStatement(self, ctx:SampleParser.StatementContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by SampleParser#term.
-    def visitTerm(self, ctx:SampleParser.TermContext):
+    # Visit a parse tree produced by SampleParser#selectStmt.
+    def visitSelectStmt(self, ctx:SampleParser.SelectStmtContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by SampleParser#factor.
-    def visitFactor(self, ctx:SampleParser.FactorContext):
+    # Visit a parse tree produced by SampleParser#updateStmt.
+    def visitUpdateStmt(self, ctx:SampleParser.UpdateStmtContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by SampleParser#funcCall.
-    def visitFuncCall(self, ctx:SampleParser.FuncCallContext):
+    # Visit a parse tree produced by SampleParser#columns.
+    def visitColumns(self, ctx:SampleParser.ColumnsContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by SampleParser#assignment.
+    def visitAssignment(self, ctx:SampleParser.AssignmentContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by SampleParser#condition.
+    def visitCondition(self, ctx:SampleParser.ConditionContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by SampleParser#value.
+    def visitValue(self, ctx:SampleParser.ValueContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by SampleParser#comparator.
+    def visitComparator(self, ctx:SampleParser.ComparatorContext):
         return self.visitChildren(ctx)
 
 

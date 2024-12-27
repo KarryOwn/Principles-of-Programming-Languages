@@ -1,44 +1,49 @@
-from CompiledFiles.SampleVisitor import SampleVisitor
 from CompiledFiles.SampleParser import SampleParser
+from CompiledFiles.SampleVisitor import SampleVisitor
 from ASTUtils import *
 
 class ASTGeneration(SampleVisitor):
     def visitProgram(self, ctx: SampleParser.ProgramContext):
-        return Prog(ctx.expression().accept(self))
+        statements = [stmt.accept(self) for stmt in ctx.statement()]
+        return Program(statements)
 
-    def visitExpression(self, ctx: SampleParser.ExpressionContext):
-        if ctx.expression():
-            op = "+" if ctx.Add() else "-"
-            return BinOp(op, ctx.expression().accept(self), ctx.term().accept(self))
+    def visitStatement(self, ctx: SampleParser.StatementContext):
+        if ctx.selectStmt():
+            return ctx.selectStmt().accept(self)
+        elif ctx.updateStmt():
+            return ctx.updateStmt().accept(self)
+        elif ctx.getChild(0).getText() == 'read':
+            return self.visitChildren(ctx)
+        elif ctx.getChild(0).getText() == 'display':
+            return self.visitChildren(ctx)
         else:
-            return ctx.term().accept(self)
+            return self.visitChildren(ctx)
 
-    def visitTerm(self, ctx:SampleParser.TermContext):
-        if ctx.term():
-            sign = ""
-            if ctx.Mul():
-                sign = "*"
-            elif ctx.Div():
-                sign = "/"
-            
-            return BinOp(sign, ctx.term().accept(self), ctx.factor().accept(self))
-        else:
-            return ctx.factor().accept(self)
-        
-    def visitFactor(self, ctx: SampleParser.FactorContext):
-        if ctx.funcCall():
-            return ctx.funcCall().accept(self)
-        elif ctx.expression():
-            return Parens(ctx.expression().accept(self))
-        if ctx.Integer():
-            return self.visitInteger(ctx.Integer())
-        
-    def visitFuncCall(self, ctx: SampleParser.FuncCallContext):
-        func_name = ctx.Id().getText()
-        args = [arg.accept(self) for arg in ctx.expression()]
-        return FuncCall(func_name, args)
+    def visitSelectStmt(self, ctx: SampleParser.SelectStmtContext):
+        columns = [col.getText() for col in ctx.columns().ID()]
+        table = ctx.ID().getText()
+        condition = ctx.condition().accept(self)
+        return Select(columns, table, condition)
 
-    def visitInteger(self, node: SampleParser.Integer):
-        return Int(int(node.getText()))
+    def visitUpdateStmt(self, ctx: SampleParser.UpdateStmtContext):
+        table = ctx.ID().getText()
+        assignment = ctx.assignment().accept(self)
+        condition = ctx.condition().accept(self)
+        return Update(table, assignment, condition)
 
-  
+    def visitAssignment(self, ctx: SampleParser.AssignmentContext):
+        column = ctx.ID().getText()
+        value = ctx.value().accept(self)
+        return Assignment(column, value)
+
+    def visitCondition(self, ctx: SampleParser.ConditionContext):
+        column = ctx.ID().getText()
+        comparator = ctx.comparator().getText()
+        value = ctx.value().accept(self)
+        return Condition(column, comparator, value)
+
+    def visitValue(self, ctx: SampleParser.ValueContext):
+        if ctx.STRING():
+            return Value(ctx.STRING().getText().strip('"'))
+        elif ctx.INTEGER():
+            return Value(int(ctx.INTEGER().getText()))
