@@ -12,6 +12,8 @@ class ASTGeneration(SampleVisitor):
             return ctx.selectStmt().accept(self)
         elif ctx.updateStmt():
             return ctx.updateStmt().accept(self)
+        elif ctx.insertStmt():
+            return ctx.insertStmt().accept(self)
         elif ctx.getChild(0).getText() == 'read':
             return self.visitChildren(ctx)
         elif ctx.getChild(0).getText() == 'display':
@@ -30,6 +32,12 @@ class ASTGeneration(SampleVisitor):
         assignment = ctx.assignment().accept(self)
         condition = ctx.condition().accept(self)
         return Update(table, assignment, condition)
+
+    def visitInsertStmt(self, ctx: SampleParser.InsertStmtContext):
+        table = ctx.ID().getText()
+        columns = [col.getText() for col in ctx.columns().ID()]
+        values = [val.accept(self) for val in ctx.values().value()]
+        return Insert(table, columns, values)
 
     def visitAssignment(self, ctx: SampleParser.AssignmentContext):
         column = ctx.ID().getText()

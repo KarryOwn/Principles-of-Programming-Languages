@@ -29,8 +29,18 @@ class SampleVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by SampleParser#insertStmt.
+    def visitInsertStmt(self, ctx:SampleParser.InsertStmtContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by SampleParser#columns.
     def visitColumns(self, ctx:SampleParser.ColumnsContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by SampleParser#values.
+    def visitValues(self, ctx:SampleParser.ValuesContext):
         return self.visitChildren(ctx)
 
 

@@ -100,6 +100,16 @@ class Update(AST):
     def accept(self, v):
         return v.visitUpdate(self)
 
+# Insert Query Node
+@dataclass
+class Insert(AST):
+    table: str
+    columns: List[str]
+    values: List[AST]
+
+    def accept(self, v):
+        return v.visitInsert(self)
+
 # Assignment Node
 @dataclass
 class Assignment(AST):

@@ -19,9 +19,17 @@ class CodeRunner:
         data = self.load_data(ctx.table)
         condition_func = self.create_condition_func(ctx.condition)
         assignment_func = self.create_assignment_func(ctx.assignment)
-        data.loc[data.apply(condition_func, axis=1), ctx.assignment.column] = data.apply(assignment_func, axis=1)
+        data.loc[data.apply(condition_func, axis=1), ctx.assignment.column] = assignment_func(None)
         self.save_data(ctx.table, data)
         return "Update successful"
+
+    def visitInsert(self, ctx: Insert):
+        data = self.load_data(ctx.table)
+        new_row = {col: val.value for col, val in zip(ctx.columns, ctx.values)}
+        new_row_df = pd.DataFrame([new_row])
+        data = pd.concat([data, new_row_df], ignore_index=True)
+        self.save_data(ctx.table, data)
+        return "Insert successful"
 
     def create_condition_func(self, condition):
         comparator = condition.comparator
