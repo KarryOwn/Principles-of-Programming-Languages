@@ -11,14 +11,14 @@ class CodeRunner:
 
     def visitSelect(self, ctx: Select):
         data = self.load_data(ctx.table)
-        condition_func = self.create_condition_func(ctx.condition)
+        condition_func = self.create_condition_func(ctx.condition.column)(ctx.condition.comparator)(ctx.condition.value.value)
         result = data[data.apply(condition_func, axis=1)][ctx.columns]
         return result.to_dict(orient='records')
 
     def visitUpdate(self, ctx: Update):
         data = self.load_data(ctx.table)
-        condition_func = self.create_condition_func(ctx.condition)
-        assignment_func = self.create_assignment_func(ctx.assignment)
+        condition_func = self.create_condition_func(ctx.condition.column)(ctx.condition.comparator)(ctx.condition.value.value)
+        assignment_func = self.create_assignment_func(ctx.assignment.value.value)
         data.loc[data.apply(condition_func, axis=1), ctx.assignment.column] = assignment_func(None)
         self.save_data(ctx.table, data)
         return "Update successful"
@@ -31,14 +31,17 @@ class CodeRunner:
         self.save_data(ctx.table, data)
         return "Insert successful"
 
-    def create_condition_func(self, condition):
-        comparator = condition.comparator
-        if comparator == '=':
-            comparator = '=='
-        return eval(f"lambda row: row['{condition.column}'] {comparator} {condition.value.value}")
+    def create_condition_func(self, column):
+        def comparator_func(comparator):
+            if comparator == '=':
+                comparator = '=='
+            def value_func(value):
+                return eval(f"lambda row: row['{column}'] {comparator} {value}")
+            return value_func
+        return comparator_func
 
-    def create_assignment_func(self, assignment):
-        return eval(f"lambda row: {assignment.value.value}")
+    def create_assignment_func(self, value):
+        return lambda _: value
 
     def load_data(self, table):
         return pd.read_excel(f"{table}.xlsx")
