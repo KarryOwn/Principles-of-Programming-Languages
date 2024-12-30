@@ -5,12 +5,14 @@ program: statement+;
 statement: selectStmt
          | updateStmt
          | insertStmt
+         | deleteStmt
          | 'read' 'from' STRING 'as' ID ';'
          | 'display' ID ';';
 
 selectStmt: 'SELECT' columns 'FROM' ID 'WHERE' condition ';';
 updateStmt: 'UPDATE' ID 'SET' assignment 'WHERE' condition ';';
 insertStmt: 'INSERT' 'INTO' ID '(' columns ')' 'VALUES' '(' values ')' ';';
+deleteStmt: 'DELETE' 'FROM' ID 'WHERE' condition ';';
 
 columns: ID (',' ID)*;
 values: value (',' value)*;

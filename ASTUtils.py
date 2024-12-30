@@ -110,6 +110,14 @@ class Insert(AST):
     def accept(self, v):
         return v.visitInsert(self)
 
+@dataclass
+class Delete(AST):
+    table: str
+    condition: AST
+
+    def accept(self, v):
+        return v.visitDelete(self)
+
 # Assignment Node
 @dataclass
 class Assignment(AST):

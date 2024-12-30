@@ -31,6 +31,13 @@ class CodeRunner:
         self.save_data(ctx.table, data)
         return "Insert successful"
 
+    def visitDelete(self, ctx: Delete):
+        data = self.load_data(ctx.table)
+        condition_func = self.create_condition_func(ctx.condition.column)(ctx.condition.comparator)(ctx.condition.value.value)
+        data = data[~data.apply(condition_func, axis=1)]
+        self.save_data(ctx.table, data)
+        return "Delete successful"
+
     def create_condition_func(self, column):
         def comparator_func(comparator):
             if comparator == '=':

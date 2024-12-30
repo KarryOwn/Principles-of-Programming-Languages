@@ -34,6 +34,11 @@ class SampleVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by SampleParser#deleteStmt.
+    def visitDeleteStmt(self, ctx:SampleParser.DeleteStmtContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by SampleParser#columns.
     def visitColumns(self, ctx:SampleParser.ColumnsContext):
         return self.visitChildren(ctx)
